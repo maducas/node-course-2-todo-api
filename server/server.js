@@ -9,7 +9,6 @@ var app = express();
 
 app.use(bodyParser.json());
 app.post('/todos', (req, res) => {
-    //console.log(req.body);
     //in postman, use URL: localhost:3000/todos
     //JSON sent in postman: 
     /*
@@ -31,6 +30,18 @@ app.post('/todos', (req, res) => {
 app.listen(3000, () => {
     console.log('Started on port 3000');
 });
+
+module.exports = {app};
+
+//get Todos from the DB and send the to the display
+app.get('/todos', (req, res) => {
+    Todo.find().then( (todos) => {
+        res.send({todos});
+    }, (e) => {
+        res.status(400).send(e);
+    })
+})
+/******************************* */
 /*
 var newTodo = new Todo({
     text: 'Cook dinner'
