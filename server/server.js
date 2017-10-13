@@ -1,5 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+const {ObjectID} = require('mongodb');
 
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
@@ -8,6 +9,7 @@ var {User} = require('./models/user');
 var app = express();
 
 app.use(bodyParser.json());
+
 app.post('/todos', (req, res) => {
     //in postman, use URL: localhost:3000/todos
     //JSON sent in postman: 
@@ -39,8 +41,28 @@ app.get('/todos', (req, res) => {
         res.send({todos});
     }, (e) => {
         res.status(400).send(e);
-    })
-})
+    });
+});
+
+app.get('/todos/:id', (req, res) => {
+    var id = req.params.id; //59e0f038ea00a80cdc9e6877
+    //valid id using isValid
+    if (!ObjectID.isValid(id)) {
+        //404 - send back empty body
+        return res.status(404).send();
+    }
+    Todo.findById(id).then( (todo) => {
+        //if no document found with this id, it will return null
+        if (!todo) {
+            //return console.log('Id not found');
+            return res.status(404).send();
+        }
+        res.send({todo});
+        //console.log('Todo by ID', todo);
+    }).catch((e) => {
+        res.status(400).send("");
+    }) //this will catch invalid ids (for ex. too many characters)        
+});
 /******************************* */
 /*
 var newTodo = new Todo({
