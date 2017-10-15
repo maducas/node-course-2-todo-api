@@ -7,6 +7,7 @@ var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
 
 var app = express();
+const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
@@ -28,12 +29,6 @@ app.post('/todos', (req, res) => {
         res.status(400).send(e); //send the error back
     });
 });
-
-app.listen(3000, () => {
-    console.log('Started on port 3000');
-});
-
-module.exports = {app};
 
 //get Todos from the DB and send the to the display
 app.get('/todos', (req, res) => {
@@ -63,6 +58,12 @@ app.get('/todos/:id', (req, res) => {
         res.status(400).send("");
     }) //this will catch invalid ids (for ex. too many characters)        
 });
+
+app.listen(port, () => {
+    console.log('Started up at port ' + port);
+});
+
+module.exports = {app};
 /******************************* */
 /*
 var newTodo = new Todo({
