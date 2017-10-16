@@ -11,14 +11,10 @@ const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
+//create a new todo (Posman -> POST command )
 app.post('/todos', (req, res) => {
     //in postman, use URL: localhost:3000/todos
-    //JSON sent in postman: 
-    /*
-    {
-	"text": "This is from postman"
-    }
-    */
+    //OR use Heroku URL
     var todo = new Todo({
         //create the new todo from what was received from Postman
         text: req.body.text
@@ -30,7 +26,7 @@ app.post('/todos', (req, res) => {
     });
 });
 
-//get Todos from the DB and send the to the display
+//get all Todos from the DB and send to the display
 app.get('/todos', (req, res) => {
     Todo.find().then( (todos) => {
         res.send({todos});
@@ -39,6 +35,7 @@ app.get('/todos', (req, res) => {
     });
 });
 
+//get a Todo by specifying it's ID after /todos/ in the address
 app.get('/todos/:id', (req, res) => {
     var id = req.params.id; //59e0f038ea00a80cdc9e6877
     //valid id using isValid
@@ -55,8 +52,30 @@ app.get('/todos/:id', (req, res) => {
         res.send({todo});
         //console.log('Todo by ID', todo);
     }).catch((e) => {
-        res.status(400).send("");
+        res.status(400).send();
     }) //this will catch invalid ids (for ex. too many characters)        
+});
+
+//delete a todo by specifying it's ID
+app.delete('/todos/:id', (req, res) => { 
+    //get ID
+    var id = req.params.id; //59e0f038ea00a80cdc9e6877
+    //validate ID -> not valid? return 404
+    if (!ObjectID.isValid(id)) {
+        //404 - send back empty body
+        return res.status(404).send();
+    }
+    Todo.findByIdAndRemove(id).then( (todo) => {
+        //if no document found with this id, it will return null
+        if (!todo) {
+            //return console.log('Id not found');
+            return res.status(404).send();
+        }
+        res.send({todo});
+        //console.log('Todo by ID', todo);
+    }).catch((e) => {
+        res.status(400).send();
+    }) //this will catch invalid ids (for ex. too many characters)          
 });
 
 app.listen(port, () => {
